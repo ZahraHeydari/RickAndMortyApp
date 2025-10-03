@@ -2,9 +2,9 @@ package com.android.domain.usecase
 
 import com.android.domain.model.Character
 import com.android.domain.repository.CharacterRepository
-import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 
-class GetAllCharactersUseCase(val repository: CharacterRepository) {
+class GetAllCharactersUseCase @Inject constructor(val repository: CharacterRepository) {
 
     suspend fun fetchAllCharacters(page: Int): Result<List<Character>> =
         try {
