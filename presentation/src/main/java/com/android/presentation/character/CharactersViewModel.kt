@@ -19,6 +19,10 @@ class CharactersViewModel @Inject constructor(
     val charactersStateFlow: StateFlow<List<com.android.domain.model.Character>?> =
         _charactersStateFlow
 
+    init {
+        fetchAllCharacters(1)
+    }
+
     fun fetchAllCharacters(page: Int) {
         viewModelScope.launch {
             _charactersStateFlow.value =
