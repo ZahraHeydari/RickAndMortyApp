@@ -13,7 +13,7 @@
         android:name=".MainApplication"
         android:theme="@style/Theme.RickAndMortyApp">
         <activity
-            android:name=".MainActivity"
+            android:name="com.android.presentation.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.RickAndMortyApp">
