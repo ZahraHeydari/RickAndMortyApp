@@ -43,6 +43,8 @@ fun NavGraph() {
             val characterListState by viewModel.characterListStateFlow.collectAsState()
             CharacterListScreen(characterListState, { characterId ->
                 navController.navigate("details/${characterId}")
+            },{
+                viewModel.fetchAllCharacters(++viewModel.page)
             })
         }
         composable(

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.android.domain.usecase.GetAllCharactersUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,18 +20,21 @@ class CharactersViewModel @Inject constructor(
     private val _characterListStateFlow = MutableStateFlow(CharacterListState())
     val characterListStateFlow: StateFlow<CharacterListState> = _characterListStateFlow.asStateFlow()
 
+    var page = 1
+
     init {
-        fetchAllCharacters(1)
+        fetchAllCharacters(page)
     }
 
     fun fetchAllCharacters(page: Int) {
         viewModelScope.launch {
+            delay(3000)
             val result = getAllCharactersUseCase.fetchAllCharacters(page)
             if (result.isSuccess) {
                 // Update state with successful data and clear error
                 _characterListStateFlow.update {
                     it.copy(
-                        characters = result.getOrNull().orEmpty(),
+                        characters = it.characters + result.getOrNull().orEmpty(),
                         errorMessage = null
                     )
                 }

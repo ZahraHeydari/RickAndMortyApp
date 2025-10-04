@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -24,6 +25,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,9 +47,10 @@ import com.android.presentation.util.showToast
 @Composable
 fun CharacterListScreen(
     characterListState: CharacterListState,
-    onDetailsClick: (characterId: Int) -> Unit
+    onDetailsClick: (characterId: Int) -> Unit,
+    onLoadMore: () -> Unit
 ) {
-     val context = LocalContext.current
+    val context = LocalContext.current
 
     Scaffold(
         topBar = { TopAppBar() }
@@ -62,7 +67,7 @@ fun CharacterListScreen(
                 CircularProgressIndicator(modifier = Modifier.padding(innerPadding))
             }
         } else {
-            CharacterList(innerPadding, characterListState.characters, onDetailsClick)
+            CharacterList(innerPadding, characterListState.characters, onDetailsClick, onLoadMore)
         }
     }
 }
@@ -85,9 +90,27 @@ fun TopAppBar() {
 fun CharacterList(
     innerPadding: PaddingValues,
     characters: List<Character>?,
-    onDetailsClick: (characterId: Int) -> Unit
+    onDetailsClick: (characterId: Int) -> Unit,
+    onLoadMore: () -> Unit
 ) {
+    val lazyListState = rememberLazyListState()
+
+    val shouldLoadMore = remember {
+        derivedStateOf {
+            val lastVisibleItem = lazyListState.layoutInfo.visibleItemsInfo.lastOrNull()
+            lastVisibleItem != null && lazyListState.layoutInfo.totalItemsCount < 43 &&
+                    lastVisibleItem.index == lazyListState.layoutInfo.totalItemsCount - 1
+        }
+    }
+
+    LaunchedEffect(shouldLoadMore.value) {
+        if (shouldLoadMore.value) {
+            onLoadMore()
+        }
+    }
+
     LazyColumn(
+        state = lazyListState,
         modifier = Modifier
             .fillMaxSize()
             .padding(innerPadding)
@@ -95,6 +118,14 @@ fun CharacterList(
         characters?.let {
             items(characters) { character ->
                 CharacterInfoCard(character, onDetailsClick)
+            }
+        }
+
+        if (shouldLoadMore.value) {
+            item {
+                Text(modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp), text = "Load more...")
             }
         }
     }
@@ -192,6 +223,6 @@ fun CharacterInfoCard(
 fun PreviewCharacterInfoCard() {
     MaterialTheme {
         val characterListState = CharacterListState(characters = listOf(ethanCharacter))
-        CharacterListScreen(characterListState, {})
+        CharacterListScreen(characterListState, {}, {})
     }
 }
