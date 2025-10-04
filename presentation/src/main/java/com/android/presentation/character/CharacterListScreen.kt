@@ -45,8 +45,7 @@ fun CharacterListScreen(
     characterListState: CharacterListState,
     onDetailsClick: (characterId: Int) -> Unit
 ) {
-
-    val context = LocalContext.current
+     val context = LocalContext.current
 
     Scaffold(
         topBar = { TopAppBar() }

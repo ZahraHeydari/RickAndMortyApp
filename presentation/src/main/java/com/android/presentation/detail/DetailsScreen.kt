@@ -18,24 +18,32 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.android.presentation.preview.ethanCharacter
+import com.android.presentation.util.showToast
 
 @Composable
 fun DetailsScreen(
     characterState: CharacterState
 ) {
-    val character = characterState.character
+    val context = LocalContext.current
+    val errorMessage = characterState.errorMessage
+    if (errorMessage?.isNotEmpty() == true) {
+        context.showToast(errorMessage)
+    }
 
+    val character = characterState.character
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Spacer(modifier = Modifier.height(24.dp))
         // Character Image
         AsyncImage(
             model = character?.image,
@@ -48,12 +56,12 @@ fun DetailsScreen(
                 .background(Color.LightGray) // Placeholder color while loading
         )
 
-        // Character Name (redundant in TopBar, but good for prominence)
         Text(
             text = character?.name ?: "Unknown",
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 16.dp)
+            modifier = Modifier.padding(bottom = 16.dp),
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         val type = if (character?.type.isNullOrEmpty()) "Unknown" else character.type
         Column(
@@ -94,9 +102,12 @@ fun CharacterProperty(label: String, value: String) {
         Text(
             text = value,
             style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.Medium
+            fontWeight = FontWeight.Medium,
+            color = MaterialTheme.colorScheme.outline
         )
-        Divider(modifier = Modifier.padding(top = 8.dp), color = Color.LightGray.copy(alpha = 0.5f))
+
+        val dividerColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+        Divider(modifier = Modifier.padding(top = 8.dp), color = dividerColor)
     }
 }
 
