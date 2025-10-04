@@ -6,6 +6,8 @@ import com.android.domain.usecase.GetAllCharactersUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -14,10 +16,8 @@ class CharactersViewModel @Inject constructor(
     val getAllCharactersUseCase: GetAllCharactersUseCase
 ) : ViewModel() {
 
-    private val _charactersStateFlow =
-        MutableStateFlow<List<com.android.domain.model.Character>?>(emptyList())
-    val charactersStateFlow: StateFlow<List<com.android.domain.model.Character>?> =
-        _charactersStateFlow
+    private val _charactersStateFlow = MutableStateFlow(CharacterListState())
+    val charactersStateFlow: StateFlow<CharacterListState> = _charactersStateFlow.asStateFlow()
 
     init {
         fetchAllCharacters(1)
@@ -25,8 +25,24 @@ class CharactersViewModel @Inject constructor(
 
     fun fetchAllCharacters(page: Int) {
         viewModelScope.launch {
-            _charactersStateFlow.value =
-                getAllCharactersUseCase.fetchAllCharacters(page).getOrNull()
+            val result = getAllCharactersUseCase.fetchAllCharacters(page)
+            if (result.isSuccess) {
+                // Update state with successful data and clear error
+                _charactersStateFlow.update {
+                    it.copy(
+                        characters = result.getOrNull().orEmpty(),
+                        errorMessage = null
+                    )
+                }
+            } else {
+                // Update state with the error message
+                _charactersStateFlow.update {
+                    it.copy(
+                        characters = emptyList(),
+                        errorMessage = result.exceptionOrNull()?.message ?: "Unknown error"
+                    )
+                }
+            }
         }
     }
 }
