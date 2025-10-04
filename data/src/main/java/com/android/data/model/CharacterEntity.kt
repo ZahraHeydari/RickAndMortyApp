@@ -2,7 +2,7 @@ package com.android.data.model
 
 data class CharacterEntity(
     val created: String,
-    val episode: List<String>,
+    val episode: List<String>?,
     val gender: String,
     val id: Int,
     val image: String,
