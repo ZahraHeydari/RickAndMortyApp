@@ -23,7 +23,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,15 +36,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.android.domain.model.Character
-import com.android.domain.model.Location
-import com.android.domain.model.Origin
 import com.android.presentation.R
-import com.android.presentation.ui.theme.DarkGray
-import com.android.presentation.ui.theme.LightGray
+import com.android.presentation.preview.ethanCharacter
 import com.android.presentation.util.showToast
 
 @Composable
-fun CharactersScreen(characterListState: CharacterListState) {
+fun CharacterListScreen(
+    characterListState: CharacterListState,
+    onDetailsClick: (characterId: Int) -> Unit
+) {
 
     val context = LocalContext.current
 
@@ -64,7 +63,7 @@ fun CharactersScreen(characterListState: CharacterListState) {
                 CircularProgressIndicator(modifier = Modifier.padding(innerPadding))
             }
         } else {
-            CharacterList(innerPadding, characterListState.characters)
+            CharacterList(innerPadding, characterListState.characters, onDetailsClick)
         }
     }
 }
@@ -73,13 +72,9 @@ fun CharactersScreen(characterListState: CharacterListState) {
 @Composable
 fun TopAppBar() {
     CenterAlignedTopAppBar(
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-            containerColor = DarkGray
-        ),
         title = {
             Text(
                 stringResource(R.string.app_name),
-                color = Color.White,
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -90,7 +85,8 @@ fun TopAppBar() {
 @Composable
 fun CharacterList(
     innerPadding: PaddingValues,
-    characters: List<Character>?
+    characters: List<Character>?,
+    onDetailsClick: (characterId: Int) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier
@@ -99,25 +95,24 @@ fun CharacterList(
     ) {
         characters?.let {
             items(characters) { character ->
-                CharacterInfoCard(
-                    character,
-                )
+                CharacterInfoCard(character, onDetailsClick)
             }
         }
     }
 }
 
 @Composable
-fun CharacterInfoCard(character: Character) {
+fun CharacterInfoCard(
+    character: Character,
+    onDetailsClick: (characterId: Int) -> Unit
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = LightGray
-        )
+        onClick = { onDetailsClick(character.id) }
     ) {
         Row(
             modifier = Modifier.padding(8.dp),
@@ -138,21 +133,26 @@ fun CharacterInfoCard(character: Character) {
                 Text(
                     text = character.name,
                     style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    fontWeight = FontWeight.Bold
                 )
 
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Canvas(modifier = Modifier.size(8.dp)) {
-                        drawCircle(color = Color.LightGray)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    val statusColor = when (character.status) {
+                        "Alive" -> Color.Green
+                        "Dead" -> Color.Red
+                        else -> MaterialTheme.colorScheme.outline
                     }
+
+                    Canvas(modifier = Modifier.size(8.dp)) {
+                        drawCircle(color = statusColor)
+                    }
+
                     Spacer(modifier = Modifier.width(4.dp))
+
                     Text(
                         text = character.status,
                         style = MaterialTheme.typography.bodyLarge,
-                        color = Color.LightGray
+                        color = statusColor
                     )
                 }
 
@@ -161,25 +161,27 @@ fun CharacterInfoCard(character: Character) {
                 Text(
                     text = "Last known location:",
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.LightGray
+                    color = MaterialTheme.colorScheme.outline
                 )
+
                 Text(
-                    text = character.location?.name ?: "Unknown",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = Color.White
+                    text = character.location.name,
+                    style = MaterialTheme.typography.bodyLarge
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
+                val genderSpeciesText =
+                    listOfNotNull(character.species, character.gender).joinToString(" - ")
                 Text(
                     text = "Species:",
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.LightGray
+                    color = MaterialTheme.colorScheme.outline
                 )
+
                 Text(
-                    text = character.species,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = Color.White
+                    text = genderSpeciesText,
+                    style = MaterialTheme.typography.bodyLarge
                 )
             }
         }
@@ -189,28 +191,8 @@ fun CharacterInfoCard(character: Character) {
 @Preview(showBackground = true)
 @Composable
 fun PreviewCharacterInfoCard() {
-    val ethanCharacter = Character(
-        name = "Ethan",
-        status = "Unknown", // Part of "Unknown - Human"
-        species = "Human",   // Part of "Unknown - Human"
-        location = Location(
-            name = "Earth (C-137)",
-            url = "https://rickandmortyapi.com/api/location/1"
-        ),
-        // The first episode's name is "Anatomy Park," which corresponds to episode 3
-        episode = listOf("https://rickandmortyapi.com/api/episode/3"),
-
-        // Other fields from the model (placeholders or common API data for Ethan):
-        id = 330, // Correct ID for Ethan
-        image = "https://rickandmortyapi.com/api/character/avatar/330.jpeg", // Correct image URL for Ethan
-        gender = "Male",
-        type = "",
-        created = "2017-11-04T20:29:49.035Z",
-        url = "https://rickandmortyapi.com/api/character/330",
-        origin = Origin(
-            name = "Earth (C-137)",
-            url = "https://rickandmortyapi.com/api/location/1"
-        )
-    )
-    CharacterInfoCard(ethanCharacter)
+    MaterialTheme {
+        val characterListState = CharacterListState(characters = listOf(ethanCharacter))
+        CharacterListScreen(characterListState, {})
+    }
 }

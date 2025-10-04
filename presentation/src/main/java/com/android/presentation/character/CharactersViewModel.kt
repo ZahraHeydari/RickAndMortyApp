@@ -16,8 +16,8 @@ class CharactersViewModel @Inject constructor(
     val getAllCharactersUseCase: GetAllCharactersUseCase
 ) : ViewModel() {
 
-    private val _charactersStateFlow = MutableStateFlow(CharacterListState())
-    val charactersStateFlow: StateFlow<CharacterListState> = _charactersStateFlow.asStateFlow()
+    private val _characterListStateFlow = MutableStateFlow(CharacterListState())
+    val characterListStateFlow: StateFlow<CharacterListState> = _characterListStateFlow.asStateFlow()
 
     init {
         fetchAllCharacters(1)
@@ -28,7 +28,7 @@ class CharactersViewModel @Inject constructor(
             val result = getAllCharactersUseCase.fetchAllCharacters(page)
             if (result.isSuccess) {
                 // Update state with successful data and clear error
-                _charactersStateFlow.update {
+                _characterListStateFlow.update {
                     it.copy(
                         characters = result.getOrNull().orEmpty(),
                         errorMessage = null
@@ -36,7 +36,7 @@ class CharactersViewModel @Inject constructor(
                 }
             } else {
                 // Update state with the error message
-                _charactersStateFlow.update {
+                _characterListStateFlow.update {
                     it.copy(
                         characters = emptyList(),
                         errorMessage = result.exceptionOrNull()?.message ?: "Unknown error"

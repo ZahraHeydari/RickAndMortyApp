@@ -4,8 +4,6 @@ import com.android.data.mapper.toCharacter
 import com.android.data.source.ApiService
 import com.android.domain.model.Character
 import com.android.domain.repository.CharacterRepository
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class CharacterRepositoryImp @Inject constructor(val apiService: ApiService) : CharacterRepository {
@@ -14,5 +12,9 @@ class CharacterRepositoryImp @Inject constructor(val apiService: ApiService) : C
         return apiService.getAllCharacters(page).results.map {
             it.toCharacter()
         }
+    }
+
+    override suspend fun getDetails(id: String): Character {
+        return apiService.getCharacterDetails(id).toCharacter()
     }
 }
