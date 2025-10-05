@@ -21,6 +21,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -67,7 +68,12 @@ fun CharacterListScreen(
                 CircularProgressIndicator(modifier = Modifier.padding(innerPadding))
             }
         } else {
-            CharacterList(innerPadding, characterListState.characters, onDetailsClick, onLoadMore)
+            CharacterList(
+                innerPadding,
+                characterListState,
+                onDetailsClick,
+                onLoadMore
+            )
         }
     }
 }
@@ -89,7 +95,7 @@ fun TopAppBar() {
 @Composable
 fun CharacterList(
     innerPadding: PaddingValues,
-    characters: List<Character>?,
+    characterListState: CharacterListState,
     onDetailsClick: (characterId: Int) -> Unit,
     onLoadMore: () -> Unit
 ) {
@@ -98,13 +104,12 @@ fun CharacterList(
     val shouldLoadMore = remember {
         derivedStateOf {
             val lastVisibleItem = lazyListState.layoutInfo.visibleItemsInfo.lastOrNull()
-            lastVisibleItem != null && lazyListState.layoutInfo.totalItemsCount < 43 &&
-                    lastVisibleItem.index == lazyListState.layoutInfo.totalItemsCount - 1
+            lastVisibleItem != null && lastVisibleItem.index == lazyListState.layoutInfo.totalItemsCount - 1
         }
     }
 
     LaunchedEffect(shouldLoadMore.value) {
-        if (shouldLoadMore.value) {
+        if (shouldLoadMore.value && !characterListState.isLoading) {
             onLoadMore()
         }
     }
@@ -115,17 +120,20 @@ fun CharacterList(
             .fillMaxSize()
             .padding(innerPadding)
     ) {
-        characters?.let {
-            items(characters) { character ->
-                CharacterInfoCard(character, onDetailsClick)
-            }
+        items(characterListState.characters) { character ->
+            CharacterInfoCard(character, onDetailsClick)
         }
 
-        if (shouldLoadMore.value) {
+        if (characterListState.isLoading) {
             item {
-                Text(modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp), text = "Load more...")
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    LinearProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                }
             }
         }
     }

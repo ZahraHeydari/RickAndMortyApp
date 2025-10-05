@@ -27,14 +27,18 @@ class CharactersViewModel @Inject constructor(
     }
 
     fun fetchAllCharacters(page: Int) {
+        _characterListStateFlow.update {
+            it.copy(isLoading = true)
+        }
         viewModelScope.launch {
-            delay(3000)
+            delay(1000)
             val result = getAllCharactersUseCase.fetchAllCharacters(page)
             if (result.isSuccess) {
                 // Update state with successful data and clear error
                 _characterListStateFlow.update {
                     it.copy(
                         characters = it.characters + result.getOrNull().orEmpty(),
+                        isLoading = false,
                         errorMessage = null
                     )
                 }
@@ -43,6 +47,7 @@ class CharactersViewModel @Inject constructor(
                 _characterListStateFlow.update {
                     it.copy(
                         characters = emptyList(),
+                        isLoading = false,
                         errorMessage = result.exceptionOrNull()?.message ?: "Unknown error"
                     )
                 }
