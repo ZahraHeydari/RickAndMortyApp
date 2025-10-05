@@ -19,7 +19,7 @@ class CharactersViewModel @Inject constructor(
 
     private val _characterListStateFlow = MutableStateFlow(CharacterListState())
     val characterListStateFlow: StateFlow<CharacterListState> = _characterListStateFlow.asStateFlow()
-
+    private var totalPages = 1
     var page = 1
 
     init {
@@ -27,6 +27,7 @@ class CharactersViewModel @Inject constructor(
     }
 
     fun fetchAllCharacters(page: Int) {
+        if (page > totalPages) return
         _characterListStateFlow.update {
             it.copy(isLoading = true)
         }
@@ -34,10 +35,11 @@ class CharactersViewModel @Inject constructor(
             delay(1000)
             val result = getAllCharactersUseCase.fetchAllCharacters(page)
             if (result.isSuccess) {
+                totalPages = result.getOrNull()?.second ?: 1
                 // Update state with successful data and clear error
                 _characterListStateFlow.update {
                     it.copy(
-                        characters = it.characters + result.getOrNull().orEmpty(),
+                        characters = it.characters + result.getOrNull()?.first.orEmpty(),
                         isLoading = false,
                         errorMessage = null
                     )
