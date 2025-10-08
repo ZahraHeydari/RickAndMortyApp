@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.android.domain.usecase.GetAllCharactersUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -32,25 +31,21 @@ class CharactersViewModel @Inject constructor(
             it.copy(isLoading = true)
         }
         viewModelScope.launch {
-            delay(1000)
             val result = getAllCharactersUseCase.fetchAllCharacters(page)
-            if (result.isSuccess) {
-                totalPages = result.getOrNull()?.second ?: 1
-                // Update state with successful data and clear error
+            result.onSuccess { list ->
+                totalPages = list.second
                 _characterListStateFlow.update {
                     it.copy(
-                        characters = it.characters + result.getOrNull()?.first.orEmpty(),
+                        characters = it.characters + list.first,
                         isLoading = false,
                         errorMessage = null
                     )
                 }
-            } else {
-                // Update state with the error message
+            }.onFailure { ex ->
                 _characterListStateFlow.update {
                     it.copy(
-                        characters = emptyList(),
                         isLoading = false,
-                        errorMessage = result.exceptionOrNull()?.message ?: "Unknown error"
+                        errorMessage = ex.message ?: "Unknown error"
                     )
                 }
             }

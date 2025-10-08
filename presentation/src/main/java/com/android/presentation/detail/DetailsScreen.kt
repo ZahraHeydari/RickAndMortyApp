@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,13 +30,13 @@ import com.android.presentation.util.showToast
 fun DetailsScreen(
     characterState: CharacterState
 ) {
+    val character = characterState.character
     val context = LocalContext.current
     val errorMessage = characterState.errorMessage
     if (errorMessage?.isNotEmpty() == true) {
         context.showToast(errorMessage)
     }
 
-    val character = characterState.character
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -44,7 +44,7 @@ fun DetailsScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.height(24.dp))
-        // Character Image
+
         AsyncImage(
             model = character?.image,
             contentDescription = "Image of ${character?.name}",
@@ -53,7 +53,7 @@ fun DetailsScreen(
                 .padding(24.dp)
                 .size(200.dp)
                 .clip(RoundedCornerShape(16.dp))
-                .background(Color.LightGray) // Placeholder color while loading
+                .background(Color.LightGray)
         )
 
         Text(
@@ -88,9 +88,13 @@ fun DetailsScreen(
 }
 
 @Composable
-fun CharacterProperty(label: String, value: String) {
+fun CharacterProperty(
+    modifier: Modifier = Modifier,
+    label: String,
+    value: String
+) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
     ) {
@@ -107,7 +111,7 @@ fun CharacterProperty(label: String, value: String) {
         )
 
         val dividerColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
-        Divider(modifier = Modifier.padding(top = 8.dp), color = dividerColor)
+        HorizontalDivider(modifier = Modifier.padding(top = 8.dp), color = dividerColor)
     }
 }
 

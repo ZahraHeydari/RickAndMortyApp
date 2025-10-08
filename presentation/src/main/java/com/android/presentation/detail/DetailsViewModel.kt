@@ -22,25 +22,24 @@ class DetailsViewModel @Inject constructor(
     val characterStateFlow: StateFlow<CharacterState> = _characterStateFlow.asStateFlow()
 
     init {
-        val id = savedStateHandle.get<String>("id")
-        id?.let { getCharacterDetails(it) }
+        savedStateHandle.get<String>("id")?.let { getCharacterDetails(it) }
     }
 
     fun getCharacterDetails(id: String) {
         viewModelScope.launch {
             val result = getCharacterUseCase.getDetails(id)
-            if (result.isSuccess) {
+            result.onSuccess {
                 _characterStateFlow.update {
                     it.copy(
                         character = result.getOrNull(),
                         errorMessage = null
                     )
                 }
-            } else {
+            }
+            result.onFailure { exception ->
                 _characterStateFlow.update {
                     it.copy(
-                        character = null,
-                        errorMessage = result.exceptionOrNull()?.message ?: "Unknown error"
+                        errorMessage = exception.message ?: "Unknown error"
                     )
                 }
             }

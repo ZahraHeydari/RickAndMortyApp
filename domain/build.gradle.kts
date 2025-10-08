@@ -1,3 +1,6 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
@@ -5,9 +8,20 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
+val apiProperties = Properties()
+apiProperties.load(FileInputStream(rootProject.file("api.properties")))
+
 android {
     namespace = "com.android.domain"
     compileSdk = 36
+
+    defaultConfig {
+        buildConfigField("String", "BASE_URL", "\"${apiProperties["BASE_URL"]}\"")
+    }
+
+    buildFeatures {
+        buildConfig = true
+    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11

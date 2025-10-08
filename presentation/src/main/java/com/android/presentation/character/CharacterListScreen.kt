@@ -3,7 +3,6 @@ package com.android.presentation.character
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -56,23 +55,25 @@ fun CharacterListScreen(
     Scaffold(
         topBar = { TopAppBar() }
     ) { innerPadding ->
+
         val errorMessage = characterListState.errorMessage
         if (errorMessage?.isNotEmpty() == true) {
             context.showToast(errorMessage)
         }
+
         if (characterListState.characters.isEmpty()) {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator(modifier = Modifier.padding(innerPadding))
+                CircularProgressIndicator(modifier = Modifier.padding(16.dp))
             }
         } else {
             CharacterList(
-                innerPadding,
-                characterListState,
-                onDetailsClick,
-                onLoadMore
+                modifier = Modifier.padding(innerPadding),
+                characterListState = characterListState,
+                onDetailsClick = onDetailsClick,
+                onLoadMore = onLoadMore
             )
         }
     }
@@ -94,7 +95,7 @@ fun TopAppBar() {
 
 @Composable
 fun CharacterList(
-    innerPadding: PaddingValues,
+    modifier: Modifier,
     characterListState: CharacterListState,
     onDetailsClick: (characterId: Int) -> Unit,
     onLoadMore: () -> Unit
@@ -116,12 +117,16 @@ fun CharacterList(
 
     LazyColumn(
         state = lazyListState,
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
-            .padding(innerPadding)
+            .padding(8.dp)
     ) {
         items(characterListState.characters) { character ->
-            CharacterInfoCard(character, onDetailsClick)
+            CharacterInfoCard(
+                modifier,
+                character,
+                onDetailsClick
+            )
         }
 
         if (characterListState.isLoading) {
@@ -141,6 +146,7 @@ fun CharacterList(
 
 @Composable
 fun CharacterInfoCard(
+    modifier: Modifier = Modifier,
     character: Character,
     onDetailsClick: (characterId: Int) -> Unit
 ) {

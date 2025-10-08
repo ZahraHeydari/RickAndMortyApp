@@ -2,6 +2,7 @@ package com.android.data.di
 
 import com.android.data.repository.CharacterRepositoryImp
 import com.android.data.source.ApiService
+import com.android.domain.BuildConfig
 import com.android.domain.repository.CharacterRepository
 import com.google.gson.Gson
 import dagger.Module
@@ -12,11 +13,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
-
-const val BASE_URL = "https://rickandmortyapi.com/api/"
-const val CONNECT_TIMEOUT = 60L
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -26,7 +23,7 @@ class NetworkModule {
     @Singleton
     fun providesRetrofit(gson: Gson): Retrofit {
         return Retrofit.Builder()
-            .baseUrl(BASE_URL)
+            .baseUrl(BuildConfig.BASE_URL)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .client(providesOkHttpClient())
             .build()
@@ -36,7 +33,6 @@ class NetworkModule {
     @Singleton
     fun providesOkHttpClient(): OkHttpClient {
         return OkHttpClient.Builder()
-            .connectTimeout(CONNECT_TIMEOUT, TimeUnit.SECONDS)
             .addNetworkInterceptor(
                 HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
             ).build()
