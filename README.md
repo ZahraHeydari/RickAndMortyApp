@@ -36,6 +36,7 @@ This project is built with **100% Kotlin** and leverages modern Android developm
 - **Dependency Injection:** [Hilt](https://dagger.dev/hilt/)
 - **Asynchronous Programming:** Kotlin Coroutines
 - **Networking:** Retrofit – Type-safe HTTP
+- **Testing:** MockK – Mocking library for Kotlin
 
 ---
 
@@ -43,11 +44,14 @@ This project is built with **100% Kotlin** and leverages modern Android developm
 The project follows a modular Clean Architecture structure:
 
 ### RickAndMortyApp/
-#### ├── app/ -----------------------> Main application module
-#### ├── presentation/ --------------> UI Layer (Jetpack Compose, ViewModels, Navigation)
-#### ├── domain/ --------------------> Business Logic Layer (Use Cases, Models)
-#### ├── data/ ----------------------> Data Layer (Repositories, API Services)
-
+#### ├── app/
+#### ├── presentation/
+#### ├── domain/
+#### ├── data/
+- **:app:** Main application module
+- **:presentation:** UI Layer (Jetpack Compose, ViewModels, Navigation)
+- **:domain:** Business Logic Layer (Use Cases, Models)
+- **:data:**  Data Layer (Repositories, API Services)
 
 ### Module Responsibilities
 - **:presentation:** Handles all UI, state management, and navigation. Depends on the `:domain` module.
@@ -65,7 +69,7 @@ The project follows a modular Clean Architecture structure:
 ### Steps
 1. Clone this repository:
    ```bash
-   git clone https://github.com/yourusername/RickAndMortyApp.git
+   git clone https://github.com/ZahraHeydari/RickAndMortyApp.git
     ```
 2. Open the project in Android Studio.
 3. Sync the project with Gradle (File > Sync Project with Gradle Files).

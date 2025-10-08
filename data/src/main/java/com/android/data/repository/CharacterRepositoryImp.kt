@@ -13,7 +13,6 @@ class CharacterRepositoryImp @Inject constructor(val apiService: ApiService) : C
         return response.results.map {
             it.toCharacter()
         } to response.info.pages
-
     }
 
     override suspend fun getDetails(id: String): Character {
